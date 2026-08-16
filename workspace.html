@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#174d3c">
+  <meta name="description" content="本地古诗文图文背诵备课端">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="workspace.css">
+  <title>古诗文备课端</title>
+</head>
+<body>
+  <aside class="author-nav" aria-label="备课导航">
+    <div class="brand"><h1>古诗记忆助手</h1><span>本地学习工作台</span></div>
+    <div class="workspace-switch" aria-label="使用端">
+      <a class="workspace-mode is-active" href="workspace.html" aria-current="page">备课端</a>
+      <a class="workspace-mode" href="index.html">孩子学习</a>
+    </div>
+    <nav class="author-tabs" aria-label="备课端页面">
+      <button class="nav-tab is-active" type="button" data-view="library">课程库</button>
+      <button class="nav-tab" type="button" data-view="build">新建课程</button>
+      <button class="nav-tab" type="button" data-view="reports">学习报告</button>
+      <a class="nav-tab nav-link mobile-learner-link" href="index.html">孩子学习</a>
+    </nav>
+    <div class="nav-note">课文、图卡与学习记录只保存在当前浏览器。</div>
+  </aside>
+
+  <main class="author-main">
+    <section id="view-library" class="author-view" data-view-panel="library">
+      <header class="page-head"><div><p class="eyebrow">课程库</p><h2>准备孩子要背的课文</h2></div><button class="button button-primary" type="button" data-open-build>新建课程</button></header>
+      <div id="library-summary" class="summary-strip" aria-live="polite"></div>
+      <section id="course-library" class="course-library" aria-live="polite"></section>
+    </section>
+
+    <section id="view-build" class="author-view" data-view-panel="build" hidden>
+      <header class="page-head"><div><p class="eyebrow">新建课程</p><h2 id="builder-title">从教材到学习包</h2></div><button class="button button-secondary" type="button" data-view-target="library">返回课程库</button></header>
+      <ol class="build-steps" aria-label="建课步骤">
+        <li data-step="source" class="is-active"><span>1</span>导入与校对</li>
+        <li data-step="scenes"><span>2</span>拆分意群</li>
+        <li data-step="images"><span>3</span>确认图卡</li>
+        <li data-step="publish"><span>4</span>发布学习包</li>
+      </ol>
+
+      <section id="build-source" class="build-panel" data-build-panel="source">
+        <div class="panel-head"><div><p class="eyebrow">第一步</p><h3>导入教材并核对原文</h3></div></div>
+        <div id="source-drop" class="source-drop" role="button" tabindex="0" aria-describedby="source-drop-help">
+          <input id="source-file" type="file" hidden accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.md,image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf">
+          <strong>拖入或选择教材文件</strong>
+          <p id="source-drop-help">支持 PDF、Word、图片、TXT、Markdown。文件在本机提取文字。</p>
+        </div>
+        <p id="source-import-message" class="message" aria-live="polite"></p>
+        <form id="source-form" class="form-grid">
+          <label>篇目标题<input id="course-title" required autocomplete="off"></label>
+          <label>作者<input id="course-author" autocomplete="off"></label>
+          <label>朝代<input id="course-dynasty" autocomplete="off"></label>
+          <label>适用年级<input id="course-grade" autocomplete="off" placeholder="例如：八年级上册"></label>
+          <label class="full-field">教材原文<textarea id="course-text" required rows="12" placeholder="请对照教材确认原文、标点和背诵范围。"></textarea></label>
+          <div class="form-actions full-field"><button class="button button-primary" type="submit">确认原文，生成学习包</button><p id="source-status-message" class="message" aria-live="polite"></p></div>
+        </form>
+      </section>
+
+      <section id="build-scenes" class="build-panel" data-build-panel="scenes" hidden>
+        <div class="panel-head"><div><p class="eyebrow">第二步</p><h3>检查记忆意群和图像脚本</h3><p>每一项都对应一张图卡和一关练习。可修改原文，再重新拆分。</p></div><button id="regenerate-scenes" class="button button-secondary" type="button">按原文重新拆分</button></div>
+        <div id="scene-editor" class="scene-editor"></div>
+        <div class="form-actions"><button class="button button-primary" type="button" data-next-build="images">确认意群，准备图卡</button></div>
+      </section>
+
+      <section id="build-images" class="build-panel" data-build-panel="images" hidden>
+        <div class="panel-head"><div><p class="eyebrow">第三步</p><h3>先找开放素材，再生成图卡</h3><p>系统会先按意群检索开放授权配图；找到候选后显示来源和许可。没有合适素材时，再生成图卡；生成失败才显示本地上传备用。</p></div></div>
+        <p id="image-generation-message" class="message" aria-live="polite"></p>
+        <div id="image-editor" class="image-editor"></div>
+        <div class="form-actions"><button class="button button-primary" type="button" data-next-build="publish">检查发布条件</button></div>
+      </section>
+
+      <section id="build-publish" class="build-panel" data-build-panel="publish" hidden>
+        <div class="panel-head"><div><p class="eyebrow">第四步</p><h3>发布给孩子学习</h3><p>发布后，孩子会进入独立学习页：看图理解、无提示回忆、整段闯关与复习。图卡是学习提示，不是发布硬门槛；之后仍可回来补做。</p></div></div>
+        <div id="publish-checklist" class="publish-checklist" aria-live="polite"></div>
+        <div class="form-actions"><button id="publish-course" class="button button-primary" type="button">发布课程</button><button class="button button-secondary" type="button" data-view-target="library">稍后发布</button><p id="publish-message" class="message" aria-live="polite"></p></div>
+      </section>
+    </section>
+
+    <section id="view-reports" class="author-view" data-view-panel="reports" hidden>
+      <header class="page-head"><div><p class="eyebrow">学习报告</p><h2>从真实表现安排复习</h2></div><div class="report-head-actions"><button id="export-backup" class="button button-secondary" type="button">备份全部数据</button><p id="report-export-message" class="message" aria-live="polite"></p></div></header>
+      <div id="reports-content" class="reports-content" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="image-lightbox" class="image-lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="image-lightbox-title">
+    <div class="image-lightbox-backdrop" data-close-lightbox></div>
+    <div class="image-lightbox-panel">
+      <button id="close-image-lightbox" class="image-lightbox-close" type="button" aria-label="关闭全图预览">×</button>
+      <p id="image-lightbox-title" class="eyebrow">图卡全图</p>
+      <img id="image-lightbox-image" src="" alt="">
+      <p id="image-lightbox-source" class="image-source"></p>
+    </div>
+  </div>
+
+  <script src="course-store.js"></script>
+  <script src="workspace.js"></script>
+</body>
+</html>

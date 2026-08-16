@@ -1,0 +1,138 @@
+{
+  "id": "zui-weng-ting-ji-mvp",
+  "title": "醉翁亭记",
+  "author": "欧阳修",
+  "dynasty": "北宋",
+  "scope": "若夫日出而林霏开 至 四时之景不同，而乐亦无穷也",
+  "sourceStatus": "内部样版：网络通行文本，等待用实际课本终审原文、标点和注释。",
+  "fullText": "若夫日出而林霏开，云归而岩穴暝，晦明变化者，山间之朝暮也。野芳发而幽香，佳木秀而繁阴，风霜高洁，水落而石出者，山间之四时也。朝而往，暮而归，四时之景不同，而乐亦无穷也。",
+  "media": {
+    "video": null,
+    "expectedVideoPath": "assets/video/醉翁亭记-段落样片.mp4",
+    "videoStatus": "浏览器动态分镜演示已启用；成片动画仍等待可用素材与生成额度。"
+  },
+  "scenes": [
+    {
+      "id": "morning-mist",
+      "order": 1,
+      "title": "晨·雾散林明",
+      "original": "若夫日出而林霏开",
+      "translation": "太阳升起来，树林里弥漫的雾气就散开了。",
+      "terms": [
+        { "word": "若夫", "meaning": "用在一段话的开头，引起下文，可理解为“要说那……”或“至于……”。" },
+        { "word": "林霏", "meaning": "树林中弥漫的雾气。" },
+        { "word": "开", "meaning": "消散。" }
+      ],
+      "sourceInfo": "太阳升起、林间雾气、雾气消散。",
+      "memoryChunks": ["若夫", "日出", "而", "林霏开"],
+      "auxiliary": "远处醉翁亭仅用于建立地点连续性，原文此句没有写亭。",
+      "image": null,
+      "imageStatus": "公开样例不附带来源未核实的临时图片"
+    },
+    {
+      "id": "evening-clouds",
+      "order": 2,
+      "title": "暮·云归穴暗",
+      "original": "云归而岩穴暝，晦明变化者，山间之朝暮也。",
+      "translation": "云雾聚拢过来，山岩和洞穴变得昏暗。这种明暗交替变化的景象，就是山里的早晨和傍晚。",
+      "terms": [
+        { "word": "云归", "meaning": "云雾聚拢。" },
+        { "word": "岩穴", "meaning": "山岩和洞穴。" },
+        { "word": "暝", "meaning": "昏暗。" },
+        { "word": "晦明", "meaning": "暗和明。" }
+      ],
+      "sourceInfo": "云雾聚拢、山岩和洞穴、昏暗、明暗变化、山间朝暮。",
+      "memoryChunks": ["云归而岩穴暝", "晦明变化者", "山间之朝暮也"],
+      "auxiliary": "暮色中的醉翁亭轮廓只用于保持地点连续性。",
+      "image": null,
+      "imageStatus": "分镜图片待补充"
+    },
+    {
+      "id": "spring-flowers",
+      "order": 3,
+      "title": "春·野花幽香",
+      "original": "野芳发而幽香",
+      "translation": "野花开了，散发出淡淡的清香。",
+      "terms": [
+        { "word": "野芳", "meaning": "野花。" },
+        { "word": "发", "meaning": "开放。" },
+        { "word": "幽香", "meaning": "清幽淡雅的香气。" }
+      ],
+      "sourceInfo": "野花、开放、清幽香气。",
+      "memoryChunks": ["野芳发", "而", "幽香"],
+      "auxiliary": "蝴蝶、嫩绿新叶或气流线只能辅助表现春季和香气。",
+      "image": null,
+      "imageStatus": "分镜图片待补充"
+    },
+    {
+      "id": "summer-shade",
+      "order": 4,
+      "title": "夏·繁阴蔽日",
+      "original": "佳木秀而繁阴",
+      "translation": "好看的树木枝叶茂盛，形成一大片浓密的绿荫。",
+      "terms": [
+        { "word": "佳木", "meaning": "好的、美丽的树木。" },
+        { "word": "秀", "meaning": "茂盛。" },
+        { "word": "繁阴", "meaning": "浓密的树荫。" }
+      ],
+      "sourceInfo": "佳木、枝叶茂盛、浓密树荫。",
+      "memoryChunks": ["佳木秀", "而", "繁阴"],
+      "auxiliary": "叶缝光斑只用于加强荫凉感，原文没有写光斑。",
+      "image": null,
+      "imageStatus": "分镜图片待补充"
+    },
+    {
+      "id": "autumn-frost",
+      "order": 5,
+      "title": "秋·风高霜洁",
+      "original": "风霜高洁",
+      "translation": "天气高爽，霜色洁白。",
+      "terms": [
+        { "word": "风霜高洁", "meaning": "天气高爽，霜色洁白。" }
+      ],
+      "sourceInfo": "天气高爽、霜色洁白。",
+      "memoryChunks": ["风霜", "高洁"],
+      "auxiliary": "秋风吹叶和少量落叶只用于提示秋季，不能抢过高天与白霜。",
+      "image": null,
+      "imageStatus": "分镜图片待补充"
+    },
+    {
+      "id": "winter-stones",
+      "order": 6,
+      "title": "冬·水落石出",
+      "original": "水落而石出者，山间之四时也。",
+      "translation": "水位下降，石头露出来了。这些就是山中四季的景色。",
+      "terms": [
+        { "word": "水落", "meaning": "水位下降。" },
+        { "word": "石出", "meaning": "石头露出水面。" },
+        { "word": "四时", "meaning": "四季。" }
+      ],
+      "sourceInfo": "水位下降、石头露出。",
+      "memoryChunks": ["水落", "而", "石出者", "山间之四时也"],
+      "auxiliary": "薄冰、枯枝和冬季色调只能作为克制的背景。",
+      "image": null,
+      "imageStatus": "分镜图片待补充"
+    },
+    {
+      "id": "seasons-joy",
+      "order": 7,
+      "title": "总结·四时乐无穷",
+      "original": "朝而往，暮而归，四时之景不同，而乐亦无穷也。",
+      "translation": "早晨出发去游玩，傍晚沿路回来。四季景色各不相同，其中的乐趣也无穷无尽。",
+      "terms": [
+        { "word": "朝", "meaning": "早晨。" },
+        { "word": "暮", "meaning": "傍晚。" },
+        { "word": "往", "meaning": "前往。" },
+        { "word": "归", "meaning": "返回。" },
+        { "word": "四时", "meaning": "四季。" },
+        { "word": "景", "meaning": "景色。" },
+        { "word": "乐亦无穷", "meaning": "乐趣也无穷尽。" }
+      ],
+      "sourceInfo": "早晨前往、傍晚归来、四季景色不同、乐趣无穷。",
+      "memoryChunks": ["朝而往", "暮而归", "四时之景不同", "而乐亦无穷也"],
+      "auxiliary": "四季色彩分区和文人背影用于组织画面，人物身份不是原文信息。",
+      "image": null,
+      "imageStatus": "分镜图片待补充"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+*.local
+.DS_Store
+.learnings/
+imports/*
+!imports/.gitkeep
+
+# 内部文档与来源未核实的临时素材不进入公开仓库
+古诗记忆助手-MVP交接说明.md
+古诗记忆助手-内容介绍脚本.md
+分镜1-日出而林霏开-风格参考.png
+assets/images/分镜1-晨雾林明-临时参考图.png
+assets/zuiwengting-second-paragraph-xiaohei/
+tools/lesson-text-extract

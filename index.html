@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#174d3c">
+  <meta name="description" content="古诗文图文理解与背诵练习">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <title>古诗记忆助手</title>
+</head>
+<body>
+  <main id="learner-home" class="learner-home" aria-live="polite"></main>
+
+  <main id="learning-shell" class="learning-shell" hidden>
+    <header class="learning-header">
+      <button id="leave-learning" class="quiet-button" type="button">退出学习</button>
+      <div class="lesson-title"><p id="lesson-meta"></p><h1 id="lesson-title"></h1></div>
+      <div id="lesson-progress" class="lesson-progress" aria-label="学习进度"></div>
+    </header>
+
+    <section id="stage-understand" class="study-stage" data-stage="understand">
+      <div id="understand-card" class="image-learning-card"></div>
+    </section>
+
+    <section id="stage-recall" class="study-stage" data-stage="recall" hidden>
+      <div id="recall-card" class="recall-card"></div>
+    </section>
+
+    <section id="stage-order" class="study-stage" data-stage="order" hidden>
+      <div id="order-card" class="order-card"></div>
+    </section>
+
+    <section id="stage-result" class="study-stage" data-stage="result" hidden>
+      <div id="result-card" class="result-card"></div>
+    </section>
+  </main>
+
+  <nav id="learner-mobile-nav" class="learner-mobile-nav" aria-label="主要页面" hidden>
+    <a href="workspace.html">课程库</a>
+    <a href="workspace.html?view=build">新建课程</a>
+    <a href="workspace.html?view=reports">学习报告</a>
+    <a class="is-active" href="index.html" aria-current="page">孩子学习</a>
+  </nav>
+
+  <script src="course-store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
