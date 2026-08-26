@@ -4,8 +4,8 @@
   "description": "本地古诗文图文理解与背诵练习",
   "start_url": "./workspace.html",
   "display": "standalone",
-  "background_color": "#f5f7f3",
-  "theme_color": "#174d3c",
+  "background_color": "#f7f8fb",
+  "theme_color": "#f7f8fb",
   "icons": [
     {
       "src": "./assets/app/icon-512.png",

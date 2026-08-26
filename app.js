@@ -248,7 +248,7 @@ async function startCourse(courseId) {
     const home = document.querySelector("#learner-home");
     home.hidden = false;
     setLearnerNavVisible(true);
-    home.innerHTML = `<section class="home-empty"><h3>课程暂时无法打开</h3><p>请返回备课端重试；本地课程数据没有被删除。</p><button class="primary-action" type="button" id="reload-course">重新打开</button></section>`;
+    home.innerHTML = `<section class="home-empty"><h3>课程暂时无法打开</h3><p>请返回选诗计划重试；本地课程数据没有被删除。</p><button class="primary-action" type="button" id="reload-course">重新打开</button></section>`;
     home.querySelector("#reload-course").addEventListener("click", () => startCourse(courseId));
   }
 }
@@ -258,7 +258,7 @@ async function renderHome() {
   const published = courses.filter(course => course.status === "published");
   const target = document.querySelector("#learner-home");
   setLearnerNavVisible(true);
-  target.innerHTML = `<section class="home-hero"><p>古诗记忆助手</p><h1>今天背什么</h1><span>先理解画面，再背出课文。</span></section><section class="home-list"><h2>${due.length ? "今天要复习" : "可以开始学习"}</h2>${published.length ? published.map(course => `<article class="home-course"><div><p>${due.some(item => item.id === course.id) ? "到期复习" : "新课程"}</p><h3>${escapeHtml(course.title)}</h3><span>${escapeHtml([course.dynasty, course.author].filter(Boolean).join(" · "))}</span></div><button class="primary-action" type="button" data-start-course="${course.id}">${due.some(item => item.id === course.id) ? "开始复习" : "开始学习"}</button></article>`).join("") : `<div class="home-empty"><h3>还没有可学习的课程</h3><p>请让家长先在备课端完成原文校对并发布课程，图卡不是开始学习的必要条件。</p></div>`}</section>`;
+  target.innerHTML = `<section class="home-hero"><p>古诗记忆助手</p><h1>今天背什么</h1><span>先理解画面，再背出课文。</span></section><section class="home-list"><h2>${due.length ? "今天要复习" : "可以开始学习"}</h2>${published.length ? published.map(course => `<article class="home-course"><div><p>${due.some(item => item.id === course.id) ? "到期复习" : "新课程"}</p><h3>${escapeHtml(course.title)}</h3><span>${escapeHtml([course.dynasty, course.author].filter(Boolean).join(" · "))}</span></div><button class="primary-action" type="button" data-start-course="${course.id}">${due.some(item => item.id === course.id) ? "开始复习" : "开始学习"}</button></article>`).join("") : `<div class="home-empty"><h3>还没有可学习的课程</h3><p>请让家长先在选诗计划完成原文校对并发布课程，图卡不是开始学习的必要条件。</p></div>`}</section>`;
   target.querySelectorAll("[data-start-course]").forEach(button => button.addEventListener("click", () => {
     history.replaceState(null, "", `?course=${encodeURIComponent(button.dataset.startCourse)}`);
     startCourse(button.dataset.startCourse);

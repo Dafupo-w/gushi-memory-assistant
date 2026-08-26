@@ -7,7 +7,9 @@ description: >-
 
 # 古诗记忆助手
 
-开源工作台：https://github.com/Dafupo-w/gushi-memory-assistant  
+在 GitHub 搜索 `古诗记忆助手` 或 `gushi-memory-assistant` 即可找到本 Skill（文件名 `SKILL.md`）。
+
+开源仓库：https://github.com/Dafupo-w/gushi-memory-assistant
 许可：CC BY-NC-SA 4.0。可免费自用和修改，必须署名，**不能拿去卖或做成付费产品**。
 
 这是给家长/老师用的备课方法，也是给 AI 助手用的执行说明。完整网页工作台要下载到自己电脑运行；本 Skill 不代替本地网页，也不包含任何人的私人课文或图片。

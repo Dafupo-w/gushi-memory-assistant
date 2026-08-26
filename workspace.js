@@ -157,7 +157,7 @@ async function renderLibrary() {
     <div><span>今日待复习</span><strong>${due.length}</strong></div>`;
   const container = document.querySelector("#course-library");
   if (!courses.length) {
-    container.innerHTML = `<div class="empty-state"><h3>先做第一份学习包</h3><p>导入教材、校对原文并拆分意群后即可发布给孩子，图卡可以之后再补。</p><button class="button button-primary" type="button" data-open-build>新建课程</button></div>`;
+    container.innerHTML = `<div class="empty-state"><h3>先做第一份学习包</h3><p>导入教材、校对原文并拆分意群后即可发布到背诗练习，图卡可以之后再补。</p><button class="button button-primary" type="button" data-open-build>新建课程</button></div>`;
     bindBuildOpeners(container);
     return;
   }
@@ -167,7 +167,7 @@ async function renderLibrary() {
       <p class="course-card-text">${escapeHtml(course.fullText.slice(0, 70))}${course.fullText.length > 70 ? "…" : ""}</p>
       <div class="card-footer"><span>更新于 ${localTime(course.updatedAt)}</span><div>
         <button class="icon-text" type="button" data-edit-course="${course.id}">编辑</button>
-        ${course.status === "published" ? `<a class="button button-primary" href="index.html?course=${encodeURIComponent(course.id)}">孩子开始学习</a>` : ""}
+        ${course.status === "published" ? `<a class="button button-primary" href="index.html?course=${encodeURIComponent(course.id)}">开始背诗</a>` : ""}
       </div></div>
     </article>`).join("");
   container.querySelectorAll("[data-edit-course]").forEach(button => button.addEventListener("click", () => openCourse(button.dataset.editCourse)));
@@ -576,7 +576,7 @@ async function publishCurrentCourse() {
   try {
     await persistScenes();
     currentCourse = await CourseStore.publish(currentCourse.id);
-    setMessage("publish-message", "课程已发布。现在可从课程库进入孩子学习页。");
+    setMessage("publish-message", "课程已发布。现在可从选诗计划进入背诗练习页。");
     renderPublishChecklist();
   } catch (error) {
     setMessage("publish-message", error.message, true);
@@ -918,7 +918,7 @@ async function renderReports() {
     const data = await CourseStore.reports(course.id);
     return reportModel(await CourseStore.getBundle(course.id), data);
   }));
-  target.innerHTML = reports.map(model => `<section class="report-entry" data-report-entry="${model.bundle.course.id}"><div class="report-entry-actions"><div><p class="eyebrow">${escapeHtml(model.bundle.course.title)} · 备课端报告</p><p class="report-entry-hint">报告包含总体摘要、按句掌握、最近闯关、反馈历史、下一次复习、完整预测计划、薄弱句和遗忘曲线。</p></div><div class="report-export"><button class="button button-primary" type="button" data-toggle-report-menu="${model.bundle.course.id}" aria-expanded="false">导出报告</button><div class="report-menu" data-report-menu="${model.bundle.course.id}" hidden><button type="button" data-report-pdf="${model.bundle.course.id}">PDF（打印 / 保存）</button><button type="button" data-report-xlsx="${model.bundle.course.id}">XLSX（可编辑）</button></div></div></div>${buildReportMarkup(model)}</section>`).join("");
+  target.innerHTML = reports.map(model => `<section class="report-entry" data-report-entry="${model.bundle.course.id}"><div class="report-entry-actions"><div><p class="eyebrow">${escapeHtml(model.bundle.course.title)} · 选诗计划报告</p><p class="report-entry-hint">报告包含总体摘要、按句掌握、最近闯关、反馈历史、下一次复习、完整预测计划、薄弱句和遗忘曲线。</p></div><div class="report-export"><button class="button button-primary" type="button" data-toggle-report-menu="${model.bundle.course.id}" aria-expanded="false">导出报告</button><div class="report-menu" data-report-menu="${model.bundle.course.id}" hidden><button type="button" data-report-pdf="${model.bundle.course.id}">PDF（打印 / 保存）</button><button type="button" data-report-xlsx="${model.bundle.course.id}">XLSX（可编辑）</button></div></div></div>${buildReportMarkup(model)}</section>`).join("");
   target.querySelectorAll("[data-toggle-report-menu]").forEach(button => button.addEventListener("click", () => {
     const menu = target.querySelector(`[data-report-menu="${button.dataset.toggleReportMenu}"]`);
     const open = menu.hidden;
