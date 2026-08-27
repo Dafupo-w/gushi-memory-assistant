@@ -69,11 +69,12 @@ function imageMarkup(scene, className = "scene-image") {
 function renderUnderstand() {
   const scene = bundle.scenes[sceneIndex];
   const card = document.querySelector("#understand-card");
+  const hasImage = Boolean(imageUrl(scene));
   card.innerHTML = `
     <div class="study-kicker">图卡 ${sceneIndex + 1} / ${bundle.scenes.length}</div>
     ${imageMarkup(scene, "understand-image")}
     <div class="understand-copy">
-      <p class="eyebrow">先看画面，说说你看到了什么</p>
+      <p class="eyebrow">${hasImage ? "先看画面，说说你看到了什么" : "先读提示，用自己的话讲这一句"}</p>
       <h2>${escapeHtml(scene.explanation)}</h2>
       <p class="anchor-copy">画面里要找到：${scene.visualAnchors.map(escapeHtml).join("、") || "人物、景物和动作"}</p>
       <details class="source-reveal"><summary>查看这一句原文</summary><p>${escapeHtml(scene.original)}</p></details>

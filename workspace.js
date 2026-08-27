@@ -35,29 +35,56 @@ function normalize(text) {
 }
 
 function localTime(value) {
-  return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value));
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = number => String(number).padStart(2, "0");
+  return `${date.getMonth() + 1}月${date.getDate()}日 ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function clauseCore(part) {
+  return String(part || "").replace(/[。！？；，、]/gu, "");
+}
+
+function isSummaryTail(part) {
+  const core = clauseCore(part);
+  if (core.length > 10) return false;
+  if (/也$/u.test(core)) return true;
+  return /者$/u.test(core) && !core.includes("而");
+}
+
+function isSubstantialParallel(part) {
+  const core = clauseCore(part);
+  return core.length >= 5 && core.includes("而") && !isSummaryTail(part);
+}
+
+function splitSentence(sentence) {
+  const clauses = sentence.split(/(?<=[，、；])/u).filter(Boolean);
+  if (clauses.length <= 1) return [sentence];
+  const parallelCount = clauses.filter(isSubstantialParallel).length;
+  if (parallelCount < 2) return [sentence];
+  const units = [];
+  let buffer = "";
+  clauses.forEach(part => {
+    if (!buffer) {
+      buffer = part;
+      return;
+    }
+    if (isSummaryTail(part) || clauseCore(buffer).length <= 3) {
+      buffer += part;
+      return;
+    }
+    units.push(buffer);
+    buffer = part;
+  });
+  if (buffer) units.push(buffer);
+  return units.filter(Boolean);
 }
 
 function splitUnits(text) {
   const source = normalize(text);
+  if (!source) return [];
   const sentences = source.split(/(?<=[。！？；])/u).filter(Boolean);
-  const units = [];
-  sentences.forEach(sentence => {
-    if (sentence.length <= 30) {
-      units.push(sentence);
-      return;
-    }
-    let line = "";
-    sentence.split(/(?<=[，、；])/u).filter(Boolean).forEach(part => {
-      if (line && line.length + part.length > 28) {
-        units.push(line);
-        line = part;
-      } else {
-        line += part;
-      }
-    });
-    if (line) units.push(line);
-  });
+  const units = sentences.flatMap(splitSentence).filter(Boolean);
   if (units.length > 1) return units.slice(0, MAX_SCENES);
   const clauses = source.split(/(?<=[，、；])/u).filter(Boolean);
   return (clauses.length > 1 ? clauses : [source]).slice(0, MAX_SCENES);
@@ -72,6 +99,14 @@ function visualAnchors(original) {
   return [...new Set(VISUAL_WORDS.filter(([word]) => original.includes(word)).map(([, label]) => label))].slice(0, 4);
 }
 
+function explainScene(original, anchors) {
+  if (anchors.length) {
+    return `这一句写的是${anchors.join("、")}。用自己的话讲出原文意思，不要添原文没有的情节。`;
+  }
+  const cleaned = original.replace(/[。！？；，、]+$/u, "");
+  return `用自己的话讲出「${cleaned}」的意思，只讲原文里有的人物、景物和动作。`;
+}
+
 function buildScenes(text) {
   return splitUnits(text).map((original, index) => {
     const anchors = visualAnchors(original);
@@ -80,7 +115,7 @@ function buildScenes(text) {
       id: CourseStore.id("scene"),
       order: index + 1,
       original,
-      explanation: `先找出${subject}，再用自己的话说明这一句的景物、动作或关系。`,
+      explanation: explainScene(original, anchors),
       visualAnchors: anchors,
       visualBrief: `画面必须清楚表现：${subject}。不加入原文没有的情节、文字或人物身份。`,
       memoryChunks: memoryChunks(original),
@@ -88,6 +123,15 @@ function buildScenes(text) {
       imageStatus: "待确认图卡"
     };
   });
+}
+
+function friendlyImageError(message) {
+  const text = String(message || "");
+  if (/timeout|超时|AbortError/i.test(text)) return "开放素材检索超时，请稍后重试，或上传本地图卡。";
+  if (/SSL|curl|ECONN|ENOTFOUND|ENETUNREACH|Command failed|Failed to fetch|NetworkError|network/i.test(text)) {
+    return "开放素材暂时连不上，请稍后重试，或直接上传本地图卡。";
+  }
+  return text.length > 72 ? "图卡处理失败，请稍后重试，或上传本地图卡。" : text;
 }
 
 function setMessage(id, message, error = false) {
@@ -284,7 +328,7 @@ async function searchSceneImages(scene, autoGenerate = true) {
   } catch (error) {
     scene.imageCandidates = [];
     scene.imageSearchStatus = "搜索失败";
-    scene.imageSearchError = error.message;
+    scene.imageSearchError = friendlyImageError(error.message);
   }
   await persistScenes();
   await renderImageEditor({ auto: false });
@@ -317,7 +361,7 @@ async function selectImageCandidate(scene, candidate) {
     scene.imageError = "";
   } catch (error) {
     scene.imageStatus = "素材保存失败";
-    scene.imageError = error.message;
+    scene.imageError = friendlyImageError(error.message);
   }
   await persistScenes();
   await renderImageEditor({ auto: false });
@@ -345,7 +389,7 @@ async function generateSceneImage(scene) {
     scene.imageError = "";
   } catch (error) {
     scene.imageStatus = "生成失败";
-    scene.imageError = error.message;
+    scene.imageError = friendlyImageError(error.message);
   }
   await persistScenes();
   await renderImageEditor({ auto: false });
@@ -367,11 +411,13 @@ async function discoverImagesFirst() {
     await searchSceneImages(scene, config.configured);
   }
   const candidates = currentScenes.filter(scene => scene.imageCandidates?.length && !scene.imageAssetId).length;
+  const failedSearch = currentScenes.filter(scene => scene.imageSearchStatus === "搜索失败").length;
   const failed = currentScenes.filter(scene => scene.imageStatus === "生成失败").length;
   if (candidates) setMessage("image-generation-message", `已找到 ${candidates} 句的开放素材候选，请逐张选择；不合适时再生成。`);
-  else if (failed) setMessage("image-generation-message", `${failed} 张图卡生成失败，请重试或上传备用。`, true);
+  else if (failed) setMessage("image-generation-message", `${failed} 张图卡生成失败，请重试或上传本地图卡。`, true);
+  else if (failedSearch) setMessage("image-generation-message", `有 ${failedSearch} 句没能连上开放素材，可以稍后重试，或直接上传本地图卡。`, true);
   else if (config.configured) setMessage("image-generation-message", "开放素材检索和自动生成已完成，请逐张确认图卡。 ");
-  else setMessage("image-generation-message", "已优先检索开放素材；没有合适素材时，可配置生成服务或使用失败备用上传。", true);
+  else setMessage("image-generation-message", "没有找到合适的开放素材。没有生成服务时，可以上传本地图卡，也可以先发布。", true);
 }
 
 async function renderImageEditor({ auto = true } = {}) {
@@ -392,7 +438,7 @@ async function renderImageEditor({ auto = true } = {}) {
   const cards = await Promise.all(visibleScenes.map(async scene => {
     const asset = scene.imageAssetId ? await CourseStore.get(CourseStore.stores.assets, scene.imageAssetId) : null;
     const imageUrl = asset ? URL.createObjectURL(asset.blob) : null;
-    const canUpload = !config.configured && !scene.imageAssetId || scene.imageStatus === "生成失败";
+    const canUpload = !scene.imageAssetId || scene.imageStatus === "生成失败";
     const preview = imageUrl
       ? `<button class="image-preview image-preview-button has-image" type="button" data-image-preview="${scene.id}" aria-label="查看第 ${scene.order} 句图卡全图"><img src="${imageUrl}" alt="第 ${scene.order} 句图卡预览"><span class="preview-zoom-hint">点击查看全图</span></button>`
       : `<div class="image-preview"><span>${scene.imageSearchStatus === "搜索中" ? "正在检索开放素材" : scene.imageStatus === "生成中" ? "正在生成图卡" : "尚未确认图卡"}</span></div>`;
@@ -402,7 +448,8 @@ async function renderImageEditor({ auto = true } = {}) {
     const searchButton = !IS_STATIC_DEMO && !scene.imageAssetId && scene.imageSearchStatus !== "搜索中" ? `<button class="button button-secondary" type="button" data-image-search="${scene.id}">${scene.imageSearchStatus === "搜索失败" ? "重新检索素材" : "重新检索素材"}</button>` : "";
     const directGenerate = config.configured && !scene.imageAssetId && scene.imageStatus !== "生成中" ? `<button class="button button-secondary" type="button" data-image-generate="${scene.id}">直接生成图卡</button>` : "";
     const retryButton = config.configured && (scene.imageStatus === "生成失败" || scene.imageStatus === "已生成待确认" || scene.imageStatus === "图卡已确认") ? `<button class="button button-secondary" type="button" data-image-generate="${scene.id}">${scene.imageStatus === "生成失败" ? "重新生成" : "重新生成一张"}</button>` : "";
-    const upload = canUpload ? `<label class="upload-button" for="image-scene-${scene.id}"><input id="image-scene-${scene.id}" type="file" accept="image/png,image/jpeg,image/webp,image/heic,image/heif" data-image-scene="${scene.id}" hidden>${IS_STATIC_DEMO ? "上传本地图卡" : "生成失败时上传备用"}</label>` : "";
+    const uploadLabel = scene.imageStatus === "生成失败" ? "生成失败时上传备用" : "上传本地图卡";
+    const upload = canUpload ? `<label class="upload-button" for="image-scene-${scene.id}"><input id="image-scene-${scene.id}" type="file" accept="image/png,image/jpeg,image/webp,image/heic,image/heif" data-image-scene="${scene.id}" hidden>${uploadLabel}</label>` : "";
     const error = scene.imageError || scene.imageSearchError ? `<p class="image-error">${escapeHtml(scene.imageError || scene.imageSearchError)}</p>` : "";
     const source = scene.imageSource ? `<p class="image-source">素材来源：${escapeHtml(scene.imageSource.source)} · ${escapeHtml(scene.imageSource.creator)}${scene.imageSource.landingUrl ? ` · <a href="${escapeHtml(scene.imageSource.landingUrl)}" target="_blank" rel="noreferrer">查看原页</a>` : ""}</p>` : "";
     return `<article class="image-card">
@@ -568,7 +615,7 @@ async function regenerateScenes() {
   const text = document.querySelector("#course-text").value;
   if (!normalize(text)) return;
   currentScenes = buildScenes(text);
-  await persistScenes();
+  if (currentCourse) await CourseStore.saveScenes(currentCourse.id, currentScenes);
   renderSceneEditor();
 }
 
@@ -577,7 +624,7 @@ async function publishCurrentCourse() {
     await persistScenes();
     currentCourse = await CourseStore.publish(currentCourse.id);
     setMessage("publish-message", "课程已发布。现在可从选诗计划进入背诗练习页。");
-    renderPublishChecklist();
+    await showView("library");
   } catch (error) {
     setMessage("publish-message", error.message, true);
   }
@@ -603,7 +650,8 @@ function formatReportDateTime(value) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+  const pad = number => String(number).padStart(2, "0");
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function download(content, type, filename) {
@@ -918,7 +966,14 @@ async function renderReports() {
     const data = await CourseStore.reports(course.id);
     return reportModel(await CourseStore.getBundle(course.id), data);
   }));
-  target.innerHTML = reports.map(model => `<section class="report-entry" data-report-entry="${model.bundle.course.id}"><div class="report-entry-actions"><div><p class="eyebrow">${escapeHtml(model.bundle.course.title)} · 选诗计划报告</p><p class="report-entry-hint">报告包含总体摘要、按句掌握、最近闯关、反馈历史、下一次复习、完整预测计划、薄弱句和遗忘曲线。</p></div><div class="report-export"><button class="button button-primary" type="button" data-toggle-report-menu="${model.bundle.course.id}" aria-expanded="false">导出报告</button><div class="report-menu" data-report-menu="${model.bundle.course.id}" hidden><button type="button" data-report-pdf="${model.bundle.course.id}">PDF（打印 / 保存）</button><button type="button" data-report-xlsx="${model.bundle.course.id}">XLSX（可编辑）</button></div></div></div>${buildReportMarkup(model)}</section>`).join("");
+  target.innerHTML = reports.map(model => {
+    const courseId = model.bundle.course.id;
+    const title = escapeHtml(model.bundle.course.title);
+    if (!model.data.attempts.length) {
+      return `<section class="report-entry" data-report-entry="${courseId}"><div class="empty-state"><p class="eyebrow">${title} · 选诗计划报告</p><h3>还没有学习记录</h3><p>课程已发布，但还没有完成一次背诗练习。走完一轮后，这里会显示掌握情况、薄弱句和复习计划。</p><a class="button button-primary" href="index.html?course=${encodeURIComponent(courseId)}">打开背诗练习</a></div></section>`;
+    }
+    return `<section class="report-entry" data-report-entry="${courseId}"><div class="report-entry-actions"><div><p class="eyebrow">${title} · 选诗计划报告</p><p class="report-entry-hint">报告包含总体摘要、按句掌握、最近闯关、反馈历史、下一次复习、完整预测计划、薄弱句和遗忘曲线。</p></div><div class="report-export"><button class="button button-primary" type="button" data-toggle-report-menu="${courseId}" aria-expanded="false">导出报告</button><div class="report-menu" data-report-menu="${courseId}" hidden><button type="button" data-report-pdf="${courseId}">PDF（打印 / 保存）</button><button type="button" data-report-xlsx="${courseId}">XLSX（可编辑）</button></div></div></div>${buildReportMarkup(model)}</section>`;
+  }).join("");
   target.querySelectorAll("[data-toggle-report-menu]").forEach(button => button.addEventListener("click", () => {
     const menu = target.querySelector(`[data-report-menu="${button.dataset.toggleReportMenu}"]`);
     const open = menu.hidden;

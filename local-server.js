@@ -266,8 +266,13 @@ async function searchImages(request, response) {
     }));
     sendJson(response, 200, { query, results });
   } catch (error) {
-    const message = error.name === "AbortError" ? "图片素材检索超时。" : error.message;
-    sendJson(response, 502, { error: `图片素材检索失败：${message}` });
+    const raw = String(error && error.message ? error.message : "");
+    const message = error.name === "AbortError" || /timeout|超时/i.test(raw)
+      ? "图片素材检索超时，请稍后重试。"
+      : /SSL|curl|ECONN|ENOTFOUND|ENETUNREACH|Command failed/i.test(raw)
+        ? "开放素材暂时连不上，请稍后重试，或直接上传本地图卡。"
+        : "图片素材检索失败，请稍后重试，或直接上传本地图卡。";
+    sendJson(response, 502, { error: message });
   } finally {
     clearTimeout(timeout);
   }
